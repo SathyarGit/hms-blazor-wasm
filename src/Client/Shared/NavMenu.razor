@@ -18,13 +18,58 @@
     }
     <MudNavLink Href="/account" Icon="@Icons.Filled.ManageAccounts">@L["Account"]</MudNavLink>
     <MudNavLink Href="/audit-logs" Icon="@Icons.Material.Filled.SecurityUpdateGood">@L["Logs"]</MudNavLink>
-    @if (_canViewProducts || _canViewBrands)
+    @if (_canViewProducts || _canViewBrands || _canViewRoomtypes || _canViewRoomstatuses || _canViewDepartments || _canViewBookingstatuses || _canViewCustomerclassifications
+        || _canViewFloors || _canViewRooms)
     {
         <MudText Typo="Typo.subtitle2" Color="Color.Primary" Class="ml-4 my-3">@L["Management"]</MudText>
+        <MudNavGroup Title="Hotel Setup" Expanded Icon="@Icons.Filled.AddBox">
+            @if (_canViewDepartments)
+            {
+                <MudNavLink Href="/hms/departments" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                    Departments
+                </MudNavLink>
+            }
+            @if (_canViewRoomtypes)
+            {
+                <MudNavLink Href="/hms/roomtypes" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                        Room Types
+                </MudNavLink>
+            }
+            @if (_canViewRoomstatuses)
+            {
+                <MudNavLink Href="/hms/roomstatuses" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                    Room Statuses
+                </MudNavLink>
+            }
+            @if (_canViewBookingstatuses)
+            {
+                <MudNavLink Href="/hms/bookingstatuses" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                    Booking Statuses
+                </MudNavLink>
+            }
+            @if (_canViewCustomerclassifications)
+            {
+                <MudNavLink Href="/hms/customerclassifications" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                    Customer Classifications
+                </MudNavLink>
+            }
+            @if (_canViewFloors)
+            {
+                <MudNavLink Href="/hms/floors" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                    Floors
+                </MudNavLink>
+            }
+            @if (_canViewRooms)
+            {
+                <MudNavLink Href="/hms/rooms" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                    Rooms
+                </MudNavLink>
+            }
+        </MudNavGroup>
         <MudNavGroup Title="@L["Catalog"]" Expanded Icon="@Icons.Filled.AddBox">
             @if (_canViewProducts)
             {
-                <MudNavLink Href="/catalog/products" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/catalog/roomucts" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
                     @L["Products"]
                 </MudNavLink>
             }

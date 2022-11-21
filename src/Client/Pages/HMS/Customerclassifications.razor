@@ -1,0 +1,52 @@
+﻿@page "/hms/customerclassifications" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Customerclassifications)]
+
+@inject IStringLocalizer<Customerclassifications> L
+@inject ICustomerclassificationsClient CustomerclassificationsClient
+
+<FshTitle Title="Customer Cassifications" Description="Manage Customer Classifications" />
+
+<EntityTable TEntity="CustomerclassificationDto" TId="Guid" TRequest="UpdateCustomerclassificationRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Customerclassification Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<CustomerclassificationDto, Guid, UpdateCustomerclassificationRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Customerclassification",
+            entityNamePlural: "Customerclassifications",
+            entityResource: FSHResource.Customerclassifications,
+            fields: new()
+            {
+                new(customerclassification => customerclassification.Id, L["Id"], "Id"),
+                new(customerclassification => customerclassification.Name, L["Name"], "Name"),
+                new(customerclassification => customerclassification.Description, L["Description"], "Description"),
+            },
+            idFunc: customerclassification => customerclassification.Id,
+            searchFunc: async filter => (await CustomerclassificationsClient
+                .SearchAsync(filter.Adapt<SearchCustomerclassificationsRequest>()))
+                .Adapt<PaginationResponse<CustomerclassificationDto>>(),
+            createFunc: async customerclassification => await CustomerclassificationsClient.CreateAsync(customerclassification.Adapt<CreateCustomerclassificationRequest>()),
+            updateFunc: async (id, customerclassification) => await CustomerclassificationsClient.UpdateAsync(id, customerclassification),
+            deleteFunc: async id => await CustomerclassificationsClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

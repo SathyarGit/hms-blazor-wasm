@@ -1,0 +1,52 @@
+﻿@page "/hms/floors" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Floors)]
+
+@inject IStringLocalizer<Floors> L
+@inject IFloorsClient FloorsClient
+
+<FshTitle Title="Floors" Description="Manage Floors" />
+
+<EntityTable TEntity="FloorDto" TId="Guid" TRequest="UpdateFloorRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Floor Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<FloorDto, Guid, UpdateFloorRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Floor",
+            entityNamePlural: "Floors",
+            entityResource: FSHResource.Floors,
+            fields: new()
+            {
+                new(floor => floor.Id, L["Id"], "Id"),
+                new(floor => floor.Name, L["Name"], "Name"),
+                new(floor => floor.Description, L["Description"], "Description"),
+            },
+            idFunc: floor => floor.Id,
+            searchFunc: async filter => (await FloorsClient
+                .SearchAsync(filter.Adapt<SearchFloorsRequest>()))
+                .Adapt<PaginationResponse<FloorDto>>(),
+            createFunc: async floor => await FloorsClient.CreateAsync(floor.Adapt<CreateFloorRequest>()),
+            updateFunc: async (id, floor) => await FloorsClient.UpdateAsync(id, floor),
+            deleteFunc: async id => await FloorsClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

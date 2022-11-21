@@ -1,0 +1,52 @@
+﻿@page "/hms/bookingstatuses" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Bookingstatuses)]
+
+@inject IStringLocalizer<Bookingstatuses> L
+@inject IBookingstatusesClient BookingstatusesClient
+
+<FshTitle Title="Booking statuses" Description="Manage Booking statuses" />
+
+<EntityTable TEntity="BookingstatusDto" TId="Guid" TRequest="UpdateBookingstatusRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Bookingstatus Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<BookingstatusDto, Guid, UpdateBookingstatusRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Bookingstatus",
+            entityNamePlural: "Bookingstatuses",
+            entityResource: FSHResource.Bookingstatuses,
+            fields: new()
+            {
+                new(bookingstatus => bookingstatus.Id, L["Id"], "Id"),
+                new(bookingstatus => bookingstatus.Name, L["Name"], "Name"),
+                new(bookingstatus => bookingstatus.Description, L["Description"], "Description"),
+            },
+            idFunc: bookingstatus => bookingstatus.Id,
+            searchFunc: async filter => (await BookingstatusesClient
+                .SearchAsync(filter.Adapt<SearchBookingstatusesRequest>()))
+                .Adapt<PaginationResponse<BookingstatusDto>>(),
+            createFunc: async bookingstatus => await BookingstatusesClient.CreateAsync(bookingstatus.Adapt<CreateBookingstatusRequest>()),
+            updateFunc: async (id, bookingstatus) => await BookingstatusesClient.UpdateAsync(id, bookingstatus),
+            deleteFunc: async id => await BookingstatusesClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

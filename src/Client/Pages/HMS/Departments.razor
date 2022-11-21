@@ -1,0 +1,52 @@
+﻿@page "/hms/departments" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Departments)]
+
+@inject IStringLocalizer<Departments> L
+@inject IDepartmentsClient DepartmentsClient
+
+<FshTitle Title="Departments" Description="Manage Departments" />
+
+<EntityTable TEntity="DepartmentDto" TId="Guid" TRequest="UpdateDepartmentRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Department Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<DepartmentDto, Guid, UpdateDepartmentRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Department",
+            entityNamePlural: "Departments",
+            entityResource: FSHResource.Departments,
+            fields: new()
+            {
+                new(department => department.Id, L["Id"], "Id"),
+                new(department => department.Name, L["Name"], "Name"),
+                new(department => department.Description, L["Description"], "Description"),
+            },
+            idFunc: department => department.Id,
+            searchFunc: async filter => (await DepartmentsClient
+                .SearchAsync(filter.Adapt<SearchDepartmentsRequest>()))
+                .Adapt<PaginationResponse<DepartmentDto>>(),
+            createFunc: async department => await DepartmentsClient.CreateAsync(department.Adapt<CreateDepartmentRequest>()),
+            updateFunc: async (id, department) => await DepartmentsClient.UpdateAsync(id, department),
+            deleteFunc: async id => await DepartmentsClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

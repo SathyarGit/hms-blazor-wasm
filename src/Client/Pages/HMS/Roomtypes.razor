@@ -1,0 +1,52 @@
+﻿@page "/hms/roomtypes" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Roomtypes)]
+
+@inject IStringLocalizer<Roomtypes> L
+@inject IRoomtypesClient RoomtypesClient
+
+<FshTitle Title="Room Types" Description="Manage Room Types" />
+
+<EntityTable TEntity="RoomtypeDto" TId="Guid" TRequest="UpdateRoomtypeRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Roomtype Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<RoomtypeDto, Guid, UpdateRoomtypeRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Roomtype",
+            entityNamePlural: "Roomtypes",
+            entityResource: FSHResource.Roomtypes,
+            fields: new()
+            {
+                new(roomtype => roomtype.Id, L["Id"], "Id"),
+                new(roomtype => roomtype.Name, L["Name"], "Name"),
+                new(roomtype => roomtype.Description, L["Description"], "Description"),
+            },
+            idFunc: roomtype => roomtype.Id,
+            searchFunc: async filter => (await RoomtypesClient
+                .SearchAsync(filter.Adapt<SearchRoomtypesRequest>()))
+                .Adapt<PaginationResponse<RoomtypeDto>>(),
+            createFunc: async roomtype => await RoomtypesClient.CreateAsync(roomtype.Adapt<CreateRoomtypeRequest>()),
+            updateFunc: async (id, roomtype) => await RoomtypesClient.UpdateAsync(id, roomtype),
+            deleteFunc: async id => await RoomtypesClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}
