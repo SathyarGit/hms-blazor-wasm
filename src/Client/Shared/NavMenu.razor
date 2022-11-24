@@ -19,50 +19,105 @@
     <MudNavLink Href="/account" Icon="@Icons.Filled.ManageAccounts">@L["Account"]</MudNavLink>
     <MudNavLink Href="/audit-logs" Icon="@Icons.Material.Filled.SecurityUpdateGood">@L["Logs"]</MudNavLink>
     @if (_canViewProducts || _canViewBrands || _canViewRoomtypes || _canViewRoomstatuses || _canViewDepartments || _canViewBookingstatuses || _canViewCustomerclassifications
-        || _canViewFloors || _canViewRooms)
+    || _canViewFloors || _canViewRooms || _canViewCustomers || _canViewEmployees || _canViewExpensecategories || _canViewFoliotypes || _canViewPaymentmodes
+    || _canViewTransactionstatuses || _canViewTransactiontypes || _canViewTravelagents || _canViewVendors)
     {
         <MudText Typo="Typo.subtitle2" Color="Color.Primary" Class="ml-4 my-3">@L["Management"]</MudText>
         <MudNavGroup Title="Hotel Setup" Expanded Icon="@Icons.Filled.AddBox">
             @if (_canViewDepartments)
             {
-                <MudNavLink Href="/hms/departments" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/hms/departments" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
                     Departments
                 </MudNavLink>
             }
             @if (_canViewRoomtypes)
             {
-                <MudNavLink Href="/hms/roomtypes" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/hms/roomtypes" Icon="@Icons.Filled.RoomPreferences" Class="fsh-nav-child">
                         Room Types
                 </MudNavLink>
             }
             @if (_canViewRoomstatuses)
             {
-                <MudNavLink Href="/hms/roomstatuses" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/hms/roomstatuses" Icon="@Icons.Filled.RoomPreferences" Class="fsh-nav-child">
                     Room Statuses
                 </MudNavLink>
             }
             @if (_canViewBookingstatuses)
             {
-                <MudNavLink Href="/hms/bookingstatuses" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/hms/bookingstatuses" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
                     Booking Statuses
                 </MudNavLink>
             }
             @if (_canViewCustomerclassifications)
             {
-                <MudNavLink Href="/hms/customerclassifications" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/hms/customerclassifications" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
                     Customer Classifications
+                </MudNavLink>
+            }
+            @if (_canViewCustomers)
+            {
+                <MudNavLink Href="/hms/customers" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
+                    Customers
                 </MudNavLink>
             }
             @if (_canViewFloors)
             {
-                <MudNavLink Href="/hms/floors" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/hms/floors" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
                     Floors
                 </MudNavLink>
             }
             @if (_canViewRooms)
             {
-                <MudNavLink Href="/hms/rooms" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/hms/rooms" Icon="@Icons.Filled.MeetingRoom" Class="fsh-nav-child">
                     Rooms
+                </MudNavLink>
+            }
+            @if (_canViewEmployees)
+            {
+                <MudNavLink Href="/hms/employees" Icon="@Icons.Filled.Person" Class="fsh-nav-child">
+                    Employees
+                </MudNavLink>
+            }
+            @if (_canViewExpensecategories)
+            {
+                <MudNavLink Href="/hms/expensecategories" Icon="@Icons.Filled.AttachMoney" Class="fsh-nav-child">
+                    Expense Categories
+                </MudNavLink>
+            }
+             @if (_canViewFoliotypes)
+            {
+                <MudNavLink Href="/hms/foliotypes" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
+                    Folio Types
+                </MudNavLink>
+            }
+            @if (_canViewPaymentmodes)
+            {
+                <MudNavLink Href="/hms/paymentmodes" Icon="@Icons.Filled.AttachMoney" Class="fsh-nav-child">
+                    Payment Modes
+                </MudNavLink>
+            }
+            @if (_canViewTransactionstatuses)
+            {
+                <MudNavLink Href="/hms/transactionstatuses" Icon="@Icons.Filled.AttachMoney" Class="fsh-nav-child">
+                    Transaction Statuses
+                </MudNavLink>
+            }
+            @if (_canViewTransactiontypes)
+            {
+                <MudNavLink Href="/hms/Transactiontypes" Icon="@Icons.Filled.AttachMoney" Class="fsh-nav-child">
+                    Transaction Types
+                </MudNavLink>
+            }
+            @if (_canViewTravelagents)
+            {
+                <MudNavLink Href="/hms/travelagents" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
+                    Travel Agents
+                </MudNavLink>
+            }
+            @if (_canViewVendors)
+            {
+                <MudNavLink Href="/hms/vendors" Icon="@Icons.Filled.Settings" Class="fsh-nav-child">
+                    Vendors
                 </MudNavLink>
             }
         </MudNavGroup>

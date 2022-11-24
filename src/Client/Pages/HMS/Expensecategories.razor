@@ -1,0 +1,52 @@
+﻿@page "/hms/expensecategories" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Expensecategories)]
+
+@inject IStringLocalizer<Expensecategories> L
+@inject IExpensecategoriesClient ExpensecategoriesClient
+
+<FshTitle Title="Expense Categories" Description="Manage Expense Categories" />
+
+<EntityTable TEntity="ExpensecategoryDto" TId="Guid" TRequest="UpdateExpensecategoryRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Expensecategory Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<ExpensecategoryDto, Guid, UpdateExpensecategoryRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Expensecategory",
+            entityNamePlural: "Expensecategories",
+            entityResource: FSHResource.Expensecategories,
+            fields: new()
+            {
+                new(expensecategory => expensecategory.Id, L["Id"], "Id"),
+                new(expensecategory => expensecategory.Name, L["Name"], "Name"),
+                new(expensecategory => expensecategory.Description, L["Description"], "Description"),
+            },
+            idFunc: expensecategory => expensecategory.Id,
+            searchFunc: async filter => (await ExpensecategoriesClient
+                .SearchAsync(filter.Adapt<SearchExpensecategoriesRequest>()))
+                .Adapt<PaginationResponse<ExpensecategoryDto>>(),
+            createFunc: async expensecategory => await ExpensecategoriesClient.CreateAsync(expensecategory.Adapt<CreateExpensecategoryRequest>()),
+            updateFunc: async (id, expensecategory) => await ExpensecategoriesClient.UpdateAsync(id, expensecategory),
+            deleteFunc: async id => await ExpensecategoriesClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

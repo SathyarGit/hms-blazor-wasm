@@ -1,0 +1,52 @@
+﻿@page "/hms/transactiontypes" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Transactiontypes)]
+
+@inject IStringLocalizer<Transactiontypes> L
+@inject ITransactiontypesClient TransactiontypesClient
+
+<FshTitle Title="Transaction Types" Description="Manage Transaction Types" />
+
+<EntityTable TEntity="TransactiontypeDto" TId="Guid" TRequest="UpdateTransactiontypeRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Transactiontype Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<TransactiontypeDto, Guid, UpdateTransactiontypeRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Transactiontype",
+            entityNamePlural: "Transactiontypes",
+            entityResource: FSHResource.Transactiontypes,
+            fields: new()
+            {
+                new(transactiontype => transactiontype.Id, L["Id"], "Id"),
+                new(transactiontype => transactiontype.Name, L["Name"], "Name"),
+                new(transactiontype => transactiontype.Description, L["Description"], "Description"),
+            },
+            idFunc: transactiontype => transactiontype.Id,
+            searchFunc: async filter => (await TransactiontypesClient
+                .SearchAsync(filter.Adapt<SearchTransactiontypesRequest>()))
+                .Adapt<PaginationResponse<TransactiontypeDto>>(),
+            createFunc: async transactiontype => await TransactiontypesClient.CreateAsync(transactiontype.Adapt<CreateTransactiontypeRequest>()),
+            updateFunc: async (id, transactiontype) => await TransactiontypesClient.UpdateAsync(id, transactiontype),
+            deleteFunc: async id => await TransactiontypesClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

@@ -1,0 +1,52 @@
+﻿@page "/hms/transactionstatuses" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Transactionstatuses)]
+
+@inject IStringLocalizer<Transactionstatuses> L
+@inject ITransactionstatusesClient TransactionstatusesClient
+
+<FshTitle Title="Transaction Statuses" Description="Manage Transaction Statuses" />
+
+<EntityTable TEntity="TransactionstatusDto" TId="Guid" TRequest="UpdateTransactionstatusRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Transactionstatus Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<TransactionstatusDto, Guid, UpdateTransactionstatusRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Transactionstatus",
+            entityNamePlural: "Transactionstatuses",
+            entityResource: FSHResource.Transactionstatuses,
+            fields: new()
+            {
+                new(transactionstatus => transactionstatus.Id, L["Id"], "Id"),
+                new(transactionstatus => transactionstatus.Name, L["Name"], "Name"),
+                new(transactionstatus => transactionstatus.Description, L["Description"], "Description"),
+            },
+            idFunc: transactionstatus => transactionstatus.Id,
+            searchFunc: async filter => (await TransactionstatusesClient
+                .SearchAsync(filter.Adapt<SearchTransactionstatusesRequest>()))
+                .Adapt<PaginationResponse<TransactionstatusDto>>(),
+            createFunc: async transactionstatus => await TransactionstatusesClient.CreateAsync(transactionstatus.Adapt<CreateTransactionstatusRequest>()),
+            updateFunc: async (id, transactionstatus) => await TransactionstatusesClient.UpdateAsync(id, transactionstatus),
+            deleteFunc: async id => await TransactionstatusesClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

@@ -1,0 +1,52 @@
+﻿@page "/hms/paymentmodes" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Paymentmodes)]
+
+@inject IStringLocalizer<Paymentmodes> L
+@inject IPaymentmodesClient PaymentmodesClient
+
+<FshTitle Title="Payment Modes" Description="Manage Payment Modes" />
+
+<EntityTable TEntity="PaymentmodeDto" TId="Guid" TRequest="UpdatePaymentmodeRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Paymentmode Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<PaymentmodeDto, Guid, UpdatePaymentmodeRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Paymentmode",
+            entityNamePlural: "Paymentmodes",
+            entityResource: FSHResource.Paymentmodes,
+            fields: new()
+            {
+                new(paymentmode => paymentmode.Id, L["Id"], "Id"),
+                new(paymentmode => paymentmode.Name, L["Name"], "Name"),
+                new(paymentmode => paymentmode.Description, L["Description"], "Description"),
+            },
+            idFunc: paymentmode => paymentmode.Id,
+            searchFunc: async filter => (await PaymentmodesClient
+                .SearchAsync(filter.Adapt<SearchPaymentmodesRequest>()))
+                .Adapt<PaginationResponse<PaymentmodeDto>>(),
+            createFunc: async paymentmode => await PaymentmodesClient.CreateAsync(paymentmode.Adapt<CreatePaymentmodeRequest>()),
+            updateFunc: async (id, paymentmode) => await PaymentmodesClient.UpdateAsync(id, paymentmode),
+            deleteFunc: async id => await PaymentmodesClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}

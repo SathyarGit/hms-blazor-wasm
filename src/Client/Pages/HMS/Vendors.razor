@@ -1,0 +1,59 @@
+﻿@page "/hms/vendors" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Vendors)]
+
+@inject IStringLocalizer<Vendors> L
+@inject IVendorsClient VendorsClient
+
+<FshTitle Title="Vendors" Description="Manage Vendors" />
+
+<EntityTable TEntity="VendorDto" TId="Guid" TRequest="UpdateVendorRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Vendor Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description" Label="@L["Description"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Notes)" @bind-Value="context.Notes" Label="@L["Notes"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<VendorDto, Guid, UpdateVendorRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Vendor",
+            entityNamePlural: "Vendors",
+            entityResource: FSHResource.Vendors,
+            fields: new()
+            {
+                new(vendor => vendor.Id, L["Id"], "Id"),
+                new(vendor => vendor.Name, L["Name"], "Name"),
+                new(vendor => vendor.Description, L["Description"], "Description"),
+                new(vendor => vendor.Notes, "Notes", "Notes"),
+            },
+            idFunc: vendor => vendor.Id,
+            searchFunc: async filter => (await VendorsClient
+                .SearchAsync(filter.Adapt<SearchVendorsRequest>()))
+                .Adapt<PaginationResponse<VendorDto>>(),
+            createFunc: async vendor => await VendorsClient.CreateAsync(vendor.Adapt<CreateVendorRequest>()),
+            updateFunc: async (id, vendor) => await VendorsClient.UpdateAsync(id, vendor),
+            exportFunc: async filter =>
+            {
+                var exportFilter = filter.Adapt<ExportVendorsRequest>();
+                return await VendorsClient.ExportAsync(exportFilter);
+            },
+            deleteFunc: async id => await VendorsClient.DeleteAsync(id));
+}

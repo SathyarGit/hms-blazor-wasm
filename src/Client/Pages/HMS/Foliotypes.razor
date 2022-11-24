@@ -1,0 +1,52 @@
+﻿@page "/hms/foliotypes" 
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Foliotypes)]
+
+@inject IStringLocalizer<Foliotypes> L
+@inject IFoliotypesClient FoliotypesClient
+
+<FshTitle Title="Folio types" Description="Manage Folio types" />
+
+<EntityTable TEntity="FoliotypeDto" TId="Guid" TRequest="UpdateFoliotypeRequest" Context="@Context">
+
+    <EditFormContent>
+        @if (!Context.AddEditModal.IsCreate)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Foliotype Id" />
+            </MudItem>
+        }
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField For="@(() => context.Description)" @bind-Value="context.Description"
+                Label="@L["Description"]" />
+        </MudItem>
+    </EditFormContent>
+
+</EntityTable>  
+
+@code
+{
+    protected EntityServerTableContext<FoliotypeDto, Guid, UpdateFoliotypeRequest> Context { get; set; } = default!;
+
+    protected override void OnInitialized() =>
+        Context = new(
+            entityName: "Foliotype",
+            entityNamePlural: "Foliotypes",
+            entityResource: FSHResource.Foliotypes,
+            fields: new()
+            {
+                new(foliotype => foliotype.Id, L["Id"], "Id"),
+                new(foliotype => foliotype.Name, L["Name"], "Name"),
+                new(foliotype => foliotype.Description, L["Description"], "Description"),
+            },
+            idFunc: foliotype => foliotype.Id,
+            searchFunc: async filter => (await FoliotypesClient
+                .SearchAsync(filter.Adapt<SearchFoliotypesRequest>()))
+                .Adapt<PaginationResponse<FoliotypeDto>>(),
+            createFunc: async foliotype => await FoliotypesClient.CreateAsync(foliotype.Adapt<CreateFoliotypeRequest>()),
+            updateFunc: async (id, foliotype) => await FoliotypesClient.UpdateAsync(id, foliotype),
+            deleteFunc: async id => await FoliotypesClient.DeleteAsync(id),
+            exportAction: string.Empty);
+}
