@@ -19,7 +19,7 @@ public partial class Rooms
 
     protected EntityServerTableContext<RoomDto, Guid, RoomViewModel> Context { get; set; } = default!;
 
-    private EntityTable<RoomDto, Guid, RoomViewModel> _table = default!;
+    private EntityTable<RoomDto, Guid, RoomViewModel>? _table = default!;
 
     protected override void OnInitialized() =>
         Context = new(
@@ -29,12 +29,12 @@ public partial class Rooms
             fields: new()
             {
                 new(room => room.Id, L["Id"], "Id"),
-                new(room => room.RoomNumber, "RoomNumber", "Room Number"),
-                new(room => room.NumberOfBeds, "NumberOfBeds", "Number of Beds"),
+                new(room => room.RoomNumber, "RoomNumber", "RoomNumber"),
+                new(room => room.NumberOfBeds, "NumberOfBeds", "NumberOfBeds"),
                 new(room => room.Notes, "Notes", "Notes"),
-                new(room => room.MaintenanceNotes, "MaintenanceNotes", "Maintenance Notes"),
+                new(room => room.MaintenanceNotes, "MaintenanceNotes", "MaintenanceNotes"),
                 new(room => room.FloorName, "Floor", "Floor.Name"),
-                new(room => room.RoomtypeName, "Roomtype", "Roomtype")
+                new(room => room.RoomtypeName, "Roomtype", "Roomtype.Name")
             },
             enableAdvancedSearch: true,
             idFunc: room => room.Id,

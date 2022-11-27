@@ -1,54 +1,46 @@
-﻿@page "/hms/customers"
-@attribute [MustHavePermission(FSHAction.View, FSHResource.Customers)]
+﻿@page "/hms/purchases"
+@attribute [MustHavePermission(FSHAction.View, FSHResource.Purchases)]
 
-@inject IStringLocalizer<Customers> L
+@inject IStringLocalizer<Purchases> L
 
-<FshTitle Title="Customers" Description="Manage Customers." />
+<FshTitle Title="Purchases" Description="Manage Purchases." />
 
-<EntityTable @ref="_table" TEntity="CustomerDto" TId="Guid" TRequest="CustomerViewModel" Context="@Context">
+<EntityTable @ref="_table" TEntity="PurchaseDto" TId="Guid" TRequest="PurchaseViewModel" Context="@Context">
 
     <AdvancedSearchContent>
-        <CustomerclassificationAutocomplete @bind-Value="SearchCustclassificationId" />
+        <VendorAutocomplete @bind-Value="SearchVendorId" />
+        <DepartmentAutocomplete @bind-Value="SearchDepartmentId" />
+        <TransactionstatusAutocomplete @bind-Value="SearchTransactionstatusId" />
     </AdvancedSearchContent>
 
     <EditFormContent>
         @if (!Context.AddEditModal.IsCreate)
         {
             <MudItem xs="12" md="6">
-                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Customer Id" />
+                <MudTextField Value="context.Id" ReadOnly DisableUnderLine Label="Purchase Id" />
             </MudItem>
         }
         <MudItem xs="12" md="6">
-            <MudTextField Label="Name" For="@(() => context.Name)" @bind-Value="context.Name" />
+            <MudDatePicker Label="Purchase Date" For="@(() => context.PurchaseDate)" @bind-Date="context.PurchaseDate" />
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudTextField Label="Address Line 1" For="@(() => context.AddressLine1)" @bind-Value="context.AddressLine1" />
-        </MudItem>
-
-        <MudItem xs="12" md="6">
-            <MudTextField Label="Address Line 2" For="@(() => context.AddressLine2)" @bind-Value="context.AddressLine2" />
+            <VendorAutocomplete For="@(() => context.VendorId)" @bind-Value="context.VendorId" OffsetY="true" />
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudTextField Label="City" For="@(() => context.City)" @bind-Value="context.City" />
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTextField Label="Country" For="@(() => context.Country)" @bind-Value="context.Country" />
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTextField Label="Pincode" For="@(() => context.Pincode)" @bind-Value="context.Pincode" />
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTextField Label="PhoneNumber" For="@(() => context.PhoneNumber)" @bind-Value="context.PhoneNumber" />
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTextField Label="Email" For="@(() => context.Email)" @bind-Value="context.Email" />
+            <MudTextField Label="Amount" For="@(() => context.Amount)" @bind-Value="context.Amount" />
         </MudItem>
         <MudItem xs="12" md="6">
             <MudTextField Label="Notes" For="@(() => context.Notes)" @bind-Value="context.Notes" />
         </MudItem>
-
         <MudItem xs="12" md="6">
-            <CustomerclassificationAutocomplete For="@(() => context.CustomerclassificationId)" @bind-Value="context.CustomerclassificationId" OffsetY="true" />
+            <DepartmentAutocomplete For="@(() => context.DepartmentId)" @bind-Value="context.DepartmentId" OffsetY="false" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField Label="Bill/Invoice Number" For="@(() => context.BillsOrInvoiceNumber)"
+                          @bind-Value="context.BillsOrInvoiceNumber" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <TransactionstatusAutocomplete For="@(() => context.TransactionstatusId)" @bind-Value="context.TransactionstatusId" OffsetY="false" />
         </MudItem>
         <MudItem xs="12" md="12">
             <MudItem>

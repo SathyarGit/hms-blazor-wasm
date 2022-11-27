@@ -18,7 +18,7 @@ public partial class Customers
 
     protected EntityServerTableContext<CustomerDto, Guid, CustomerViewModel> Context { get; set; } = default!;
 
-    private EntityTable<CustomerDto, Guid, CustomerViewModel> _table = default!;
+    private EntityTable<CustomerDto, Guid, CustomerViewModel>? _table = default!;
 
     protected override void OnInitialized() =>
         Context = new(
@@ -29,12 +29,12 @@ public partial class Customers
             {
                 new(customer => customer.Id, L["Id"], "Id"),
                 new(customer => customer.Name, "Name", "Name"),
-                new(customer => customer.AddressLine1, "AddressLine1", "Address Line1"),
-                new(customer => customer.AddressLine2, "AddressLine2", "Address Line2"),
+                new(customer => customer.AddressLine1, "AddressLine1", "AddressLine1"),
+                new(customer => customer.AddressLine2, "AddressLine2", "AddressLine2"),
                 new(customer => customer.City, "City", "City"),
                 new(customer => customer.Country, "Country", "Country"),
                 new(customer => customer.Pincode, "Pincode", "Pincode"),
-                new(customer => customer.PhoneNumber, "PhoneNumber", "Phone Number"),
+                new(customer => customer.PhoneNumber, "PhoneNumber", "PhoneNumber"),
                 new(customer => customer.Email, "Email", "Email"),
                 new(customer => customer.Notes, "Notes", "Notes"),
                 new(customer => customer.CustomerclassificationName, "Customerclassification", "Customerclassification")

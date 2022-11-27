@@ -16,7 +16,7 @@ public partial class Travelagents
 
     protected EntityServerTableContext<TravelagentDto, Guid, TravelagentViewModel> Context { get; set; } = default!;
 
-    private EntityTable<TravelagentDto, Guid, TravelagentViewModel> _table = default!;
+    private EntityTable<TravelagentDto, Guid, TravelagentViewModel>? _table = default!;
 
     protected override void OnInitialized() =>
         Context = new(
@@ -27,12 +27,12 @@ public partial class Travelagents
             {
                 new(travelagent => travelagent.Id, L["Id"], "Id"),
                 new(travelagent => travelagent.Name, "Name", "Name"),
-                new(travelagent => travelagent.AddressLine1, "AddressLine1", "Address Line1"),
-                new(travelagent => travelagent.AddressLine2, "AddressLine2", "Address Line2"),
+                new(travelagent => travelagent.AddressLine1, "AddressLine1", "AddressLine1"),
+                new(travelagent => travelagent.AddressLine2, "AddressLine2", "AddressLine2"),
                 new(travelagent => travelagent.City, "City", "City"),
                 new(travelagent => travelagent.Country, "Country", "Country"),
                 new(travelagent => travelagent.Pincode, "Pincode", "Pincode"),
-                new(travelagent => travelagent.PhoneNumber, "PhoneNumber", "Phone Number"),
+                new(travelagent => travelagent.PhoneNumber, "PhoneNumber", "PhoneNumber"),
                 new(travelagent => travelagent.Email, "Email", "Email"),
                 new(travelagent => travelagent.Notes, "Notes", "Notes"),
             },

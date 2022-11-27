@@ -20,7 +20,7 @@
     <MudNavLink Href="/audit-logs" Icon="@Icons.Material.Filled.SecurityUpdateGood">@L["Logs"]</MudNavLink>
     @if (_canViewProducts || _canViewBrands || _canViewRoomtypes || _canViewRoomstatuses || _canViewDepartments || _canViewBookingstatuses || _canViewCustomerclassifications
     || _canViewFloors || _canViewRooms || _canViewCustomers || _canViewEmployees || _canViewExpensecategories || _canViewFoliotypes || _canViewPaymentmodes
-    || _canViewTransactionstatuses || _canViewTransactiontypes || _canViewTravelagents || _canViewVendors)
+    || _canViewTransactionstatuses || _canViewTransactiontypes || _canViewTravelagents || _canViewVendors || _canViewPurchases)
     {
         <MudText Typo="Typo.subtitle2" Color="Color.Primary" Class="ml-4 my-3">@L["Management"]</MudText>
         <MudNavGroup Title="Hotel Setup" Expanded Icon="@Icons.Filled.AddBox">
@@ -120,11 +120,17 @@
                     Vendors
                 </MudNavLink>
             }
+            @if (_canViewPurchases)
+            {
+                <MudNavLink Href="/hms/purchases" Icon="@Icons.Filled.AttachMoney" Class="fsh-nav-child">
+                    Purchases
+                </MudNavLink>
+            }
         </MudNavGroup>
         <MudNavGroup Title="@L["Catalog"]" Expanded Icon="@Icons.Filled.AddBox">
             @if (_canViewProducts)
             {
-                <MudNavLink Href="/catalog/roomucts" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
+                <MudNavLink Href="/catalog/products" Icon="@Icons.Filled.ShoppingBag" Class="fsh-nav-child">
                     @L["Products"]
                 </MudNavLink>
             }

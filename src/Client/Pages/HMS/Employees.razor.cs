@@ -18,7 +18,7 @@ public partial class Employees
 
     protected EntityServerTableContext<EmployeeDto, Guid, EmployeeViewModel> Context { get; set; } = default!;
 
-    private EntityTable<EmployeeDto, Guid, EmployeeViewModel> _table = default!;
+    private EntityTable<EmployeeDto, Guid, EmployeeViewModel>? _table = default!;
 
     protected override void OnInitialized() =>
         Context = new(
@@ -31,7 +31,7 @@ public partial class Employees
                 new(employee => employee.Name, "Name", "Name"),
                 new(employee => employee.Address, "Address", "Address"),
                 new(employee => employee.Notes, "Notes", "Notes"),
-                new(employee => employee.DepartmentName, "Department", "Department.Name"),
+                new(employee => employee.DepartmentName, "Department Name", "Department.Name"),
             },
             enableAdvancedSearch: true,
             idFunc: employee => employee.Id,
