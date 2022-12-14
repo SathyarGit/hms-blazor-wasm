@@ -8,7 +8,7 @@
     public string TooltipText { get; set; } = "No Connection";
     public string Icon { get; set; } = Icons.Filled.SignalWifi0Bar;
     public Color IconColor { get; set; } = Color.Error;
-    
+
     [CascadingParameter] private NotificationConnection _notifications { get; set; } = default!;
 
     protected override void OnInitialized()
@@ -18,7 +18,13 @@
         Courier.SubscribeWeak<NotificationWrapper<ConnectionStateChanged>>(wrapper =>
         {
             SetConnectionState(wrapper.Notification.State, wrapper.Notification.Message);
-            StateHasChanged();
+            try
+            {
+                StateHasChanged();
+            }
+            catch
+            {
+            }
         });
     }
 
@@ -44,6 +50,12 @@
                 IconColor = Color.Error;
                 break;
         }
-        StateHasChanged();
+        try
+        {
+            StateHasChanged();
+        }
+        catch
+        {
+        }
     }
 }

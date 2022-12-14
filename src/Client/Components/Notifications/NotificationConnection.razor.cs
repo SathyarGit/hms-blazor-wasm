@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FSH.BlazorWebAssembly.Client.Infrastructure.Auth;
@@ -39,52 +40,60 @@ public partial class NotificationConnection : IDisposable, IAsyncDisposable
 
     public string? ConnectionId => _hubConnection?.ConnectionId;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl($"{Config[ConfigNames.ApiBaseUrl]}notifications", options =>
+                    options.AccessTokenProvider =
+                        () => TokenProvider.GetAccessTokenAsync())
+                .WithAutomaticReconnect(new IndefiniteRetryPolicy())
+                .Build();
+
+            _hubConnection.Reconnecting += ex =>
+                OnConnectionStateChangedAsync(ConnectionState.Connecting, ex?.Message);
+
+            _hubConnection.Reconnected += id =>
+                OnConnectionStateChangedAsync(ConnectionState.Connected, id);
+
+            _hubConnection.Closed += async ex =>
+            {
+                await OnConnectionStateChangedAsync(ConnectionState.Disconnected, ex?.Message);
+
+                // This shouldn't happen with the IndefiniteRetryPolicy configured above,
+                // but just in case it does, we wait a bit and restart the connection again.
+                await Task.Delay(5000, _cts.Token);
+                await ConnectWithRetryAsync(_cts.Token);
+            };
+
+            _subscription = _hubConnection.On<string, JsonObject>(NotificationConstants.NotificationFromServer, (notificationTypeName, notificationJson) =>
+            {
+                if (Assembly.GetAssembly(typeof(INotificationMessage))!.GetType(notificationTypeName)
+                    is { } notificationType
+                    && notificationJson.Deserialize(
+                        notificationType,
+                        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })
+                        is INotificationMessage notification)
+                {
+                    return Publisher.PublishAsync(notification);
+                }
+
+                Logger.LogError("Invalid Notification Received ({name}).", notificationTypeName);
+
+                return Task.CompletedTask;
+            });
+
+            // launch the signalR connection in the background.
+            // see https://www.dotnetcurry.com/aspnet-core/realtime-app-using-blazor-webassembly-signalr-csharp9
+            _ = ConnectWithRetryAsync(_cts.Token);
+
+            StateHasChanged();
+        }
+    }
+
     protected override Task OnInitializedAsync()
     {
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl($"{Config[ConfigNames.ApiBaseUrl]}notifications", options =>
-                options.AccessTokenProvider =
-                    () => TokenProvider.GetAccessTokenAsync())
-            .WithAutomaticReconnect(new IndefiniteRetryPolicy())
-            .Build();
-
-        _hubConnection.Reconnecting += ex =>
-            OnConnectionStateChangedAsync(ConnectionState.Connecting, ex?.Message);
-
-        _hubConnection.Reconnected += id =>
-            OnConnectionStateChangedAsync(ConnectionState.Connected, id);
-
-        _hubConnection.Closed += async ex =>
-        {
-            await OnConnectionStateChangedAsync(ConnectionState.Disconnected, ex?.Message);
-
-            // This shouldn't happen with the IndefiniteRetryPolicy configured above,
-            // but just in case it does, we wait a bit and restart the connection again.
-            await Task.Delay(5000, _cts.Token);
-            await ConnectWithRetryAsync(_cts.Token);
-        };
-
-        _subscription = _hubConnection.On<string, JsonObject>(NotificationConstants.NotificationFromServer, (notificationTypeName, notificationJson) =>
-        {
-            if (Assembly.GetAssembly(typeof(INotificationMessage))!.GetType(notificationTypeName)
-                is { } notificationType
-                && notificationJson.Deserialize(
-                    notificationType,
-                    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })
-                    is INotificationMessage notification)
-            {
-                return Publisher.PublishAsync(notification);
-            }
-
-            Logger.LogError("Invalid Notification Received ({name}).", notificationTypeName);
-
-            return Task.CompletedTask;
-        });
-
-        // launch the signalR connection in the background.
-        // see https://www.dotnetcurry.com/aspnet-core/realtime-app-using-blazor-webassembly-signalr-csharp9
-        _ = ConnectWithRetryAsync(_cts.Token);
-
         return base.OnInitializedAsync();
     }
 

@@ -26,7 +26,15 @@ public class JwtAuthenticationService : AuthenticationStateProvider, IAuthentica
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        string cachedToken = await GetCachedAuthTokenAsync();
+        string cachedToken = string.Empty;
+        try
+        {
+            cachedToken = await GetCachedAuthTokenAsync();
+        }
+        catch
+        {
+        }
+
         if (string.IsNullOrWhiteSpace(cachedToken))
         {
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -150,28 +158,90 @@ public class JwtAuthenticationService : AuthenticationStateProvider, IAuthentica
 
     private async ValueTask CacheAuthTokens(string? token, string? refreshToken)
     {
-        await _localStorage.SetItemAsync(StorageConstants.Local.AuthToken, token);
-        await _localStorage.SetItemAsync(StorageConstants.Local.RefreshToken, refreshToken);
+        try
+        {
+            await _localStorage.SetItemAsync(StorageConstants.Local.AuthToken, token);
+            await _localStorage.SetItemAsync(StorageConstants.Local.RefreshToken, refreshToken);
+        }
+        catch
+        {
+
+        }
     }
 
-    private ValueTask CachePermissions(ICollection<string> permissions) =>
-        _localStorage.SetItemAsync(StorageConstants.Local.Permissions, permissions);
+    private ValueTask CachePermissions(ICollection<string> permissions)
+    {
+        ValueTask vt = default;
+        try
+        {
+            vt = _localStorage.SetItemAsync(StorageConstants.Local.Permissions, permissions);
+        }
+        catch
+        {
+
+        }
+
+        return vt;
+    }
+
 
     private async Task ClearCacheAsync()
     {
-        await _localStorage.RemoveItemAsync(StorageConstants.Local.AuthToken);
-        await _localStorage.RemoveItemAsync(StorageConstants.Local.RefreshToken);
-        await _localStorage.RemoveItemAsync(StorageConstants.Local.Permissions);
+        try
+        {
+            await _localStorage.RemoveItemAsync(StorageConstants.Local.AuthToken);
+            await _localStorage.RemoveItemAsync(StorageConstants.Local.RefreshToken);
+            await _localStorage.RemoveItemAsync(StorageConstants.Local.Permissions);
+        }
+        catch
+        {
+        }
     }
 
-    private ValueTask<string> GetCachedAuthTokenAsync() =>
-        _localStorage.GetItemAsync<string>(StorageConstants.Local.AuthToken);
+    private ValueTask<string> GetCachedAuthTokenAsync()
+    {
+        ValueTask<string> vt = default;
 
-    private ValueTask<string> GetCachedRefreshTokenAsync() =>
-        _localStorage.GetItemAsync<string>(StorageConstants.Local.RefreshToken);
+        try
+        {
+            vt = _localStorage.GetItemAsync<string>(StorageConstants.Local.AuthToken);
+        }
+        catch
+        {
 
-    private ValueTask<ICollection<string>> GetCachedPermissionsAsync() =>
-        _localStorage.GetItemAsync<ICollection<string>>(StorageConstants.Local.Permissions);
+        }
+
+        return vt;
+    }
+
+    private ValueTask<string> GetCachedRefreshTokenAsync()
+    {
+        ValueTask<string> vt = default;
+        try
+        {
+            vt = _localStorage.GetItemAsync<string>(StorageConstants.Local.RefreshToken);
+        }
+        catch
+        {
+
+        }
+        return vt;
+    }
+
+    private ValueTask<ICollection<string>> GetCachedPermissionsAsync()
+    {
+        ValueTask <ICollection<string>> vt = default;
+        try
+        {
+            vt = _localStorage.GetItemAsync<ICollection<string>>(StorageConstants.Local.Permissions);
+        }
+        catch
+        {
+
+        }
+
+        return vt;
+    }
 
     private IEnumerable<Claim> GetClaimsFromJwt(string jwt)
     {
